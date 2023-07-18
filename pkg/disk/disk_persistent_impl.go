@@ -1,7 +1,6 @@
 package disk
 
 import (
-	"io"
 	"os"
 	"sync"
 )
@@ -14,8 +13,22 @@ var (
 // FilePersistentImpl 持久化存储接口的本地文件
 type FilePersistentImpl struct {
 	file   *os.File
+	offset int64
 	suffix uint64
 	sync.RWMutex
+}
+
+func (f *FilePersistentImpl) getOffset() int64 {
+	f.RLock()
+	res := f.offset
+	f.RUnlock()
+	return res
+}
+
+func (f *FilePersistentImpl) setOffset(offset int64) {
+	f.Lock()
+	f.offset = offset
+	f.Unlock()
 }
 
 func NewFilePersistentImpl(path string, suffix uint64) (PersistentStorage, error) {
@@ -38,12 +51,10 @@ func (f *FilePersistentImpl) ReadFromDisk(bs []byte, offset uint64) (int, error)
 
 func (f *FilePersistentImpl) WriteToDisk(bs []byte) (offset int64, wn int, err error) {
 	f.Lock()
-	defer f.Unlock()
-	// TODO 如果Seek的开销很大，我们可以使用一个变量来维护它
-	if offset, err = f.file.Seek(0, io.SeekEnd); err != nil {
-		return
-	}
 	wn, err = f.file.Write(bs)
+	f.Unlock()
+	offset = f.getOffset()
+	f.setOffset(offset + int64(wn))
 	return
 }
 
