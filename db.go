@@ -20,6 +20,7 @@ func NewDb(opts *Options) *DB {
 	db := new(DB)
 	db.Opts = opts
 	db.index = index.NewBtree()
+	db.oldFiles = make(map[uint64]disk.DataFile)
 	return db
 }
 
@@ -60,10 +61,29 @@ func (d *DB) Get(key []byte) (value []byte, err error) {
 	if err != nil {
 		return
 	}
-	if vMeta == nil && err == nil {
+	// key not seen
+	if vMeta == nil {
 		return nil, nil
 	}
 	return d.activeFile.Read(vMeta)
+}
+
+// Del - delete key-value from db
+func (d *DB) Del(key []byte) (err error) {
+	// TODO 这里可以优化，如果key根本不在Index中直接返回就行了。
+	// 当前的实现甭管有没有都会生成logRecord
+	vm, err := d.activeFile.Del(key, true)
+	if err != nil {
+		return err
+	}
+	err = d.index.Del(key)
+	if err != nil {
+		return err
+	}
+	if vm != nil {
+		return d.index.Set(key, vm)
+	}
+	return nil
 }
 
 func (d *DB) Close() error {

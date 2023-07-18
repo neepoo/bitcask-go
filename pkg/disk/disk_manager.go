@@ -1,9 +1,10 @@
 package disk
 
 import (
-	"bitcask-go/pkg/index"
 	"errors"
 	"fmt"
+
+	"bitcask-go/pkg/index"
 )
 
 const dataFileExt = ".db"
