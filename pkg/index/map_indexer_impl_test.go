@@ -1,4 +1,4 @@
-package key_dir
+package index
 
 import (
 	"testing"
@@ -8,7 +8,7 @@ import (
 
 func TestMap_Del(t *testing.T) {
 	m := NewMap()
-	err := m.Set([]byte("key1"), NewMemValue(1, 1, 1))
+	err := m.Set([]byte("key1"), NewValueMetadata(1, 1, 1, 1))
 	require.NoError(t, err)
 	k1Val, err := m.Get([]byte("key1"))
 	require.NoError(t, err)
@@ -35,14 +35,14 @@ func TestMap_Del(t *testing.T) {
 
 func TestMap_Get(t *testing.T) {
 	m := NewMap()
-	err := m.Set([]byte("key1"), NewMemValue(1, 1, 1))
+	err := m.Set([]byte("key1"), NewValueMetadata(1, 1, 1, 1))
 	require.NoError(t, err)
 	v1, err := m.Get([]byte("key1"))
 	require.NoError(t, err)
 	require.Equal(t, uint64(1), v1.FileID)
 	require.Equal(t, uint64(1), v1.ValueSz)
 	require.Equal(t, uint64(1), v1.ValuePos)
-	err = m.Set([]byte("key1"), NewMemValue(2, 2, 2))
+	err = m.Set([]byte("key1"), NewValueMetadata(2, 2, 2, 2))
 	require.NoError(t, err)
 	v2, err := m.Get([]byte("key1"))
 	require.NoError(t, err)
@@ -58,7 +58,7 @@ func TestMap_Get(t *testing.T) {
 	require.Nil(t, vNotExist)
 
 	// test empty key("")
-	err = m.Set([]byte(""), NewMemValue(3, 3, 3))
+	err = m.Set([]byte(""), NewValueMetadata(3, 3, 3, 3))
 	require.NoError(t, err)
 	v3, err := m.Get([]byte(""))
 	require.NoError(t, err)
@@ -69,13 +69,13 @@ func TestMap_Get(t *testing.T) {
 
 func TestMap_Set(t *testing.T) {
 	m := NewMap()
-	err := m.Set([]byte("key1"), NewMemValue(1, 1, 1))
+	err := m.Set([]byte("key1"), NewValueMetadata(1, 1, 1, 1))
 	require.NoError(t, err)
-	err = m.Set([]byte("key2"), NewMemValue(2, 2, 2))
+	err = m.Set([]byte("key2"), NewValueMetadata(2, 2, 2, 2))
 	require.NoError(t, err)
-	err = m.Set(nil, NewMemValue(3, 3, 3))
+	err = m.Set(nil, NewValueMetadata(3, 3, 3, 3))
 	require.Error(t, err)
-	err = m.Set([]byte(""), NewMemValue(4, 4, 4))
+	err = m.Set([]byte(""), NewValueMetadata(4, 4, 4, 4))
 	require.NoError(t, err)
 	v4, err := m.Get([]byte(""))
 	require.NoError(t, err)

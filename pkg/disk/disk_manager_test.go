@@ -19,12 +19,12 @@ func Test_Manager(t *testing.T) {
 		k2 = []byte("")
 		v2 = []byte("empty")
 	)
-	m, err := NewManager(path.Join(os.TempDir(), "test"), 0)
+	m, err := NewManager(path.Join(os.TempDir(), "test"), 0, true, 4<<20)
 	assert.NoError(t, err)
 	assert.NotNil(t, m)
 
 	// write
-	keyDir1, err := m.Write(k1, v1)
+	keyDir1, err := m.Write(k1, v1, false)
 	assert.NoError(t, err)
 	assert.NotNil(t, keyDir1)
 	assert.Equal(t, uint64(0), keyDir1.FileID)
@@ -37,7 +37,7 @@ func Test_Manager(t *testing.T) {
 	assert.Equal(t, v1, gotV1)
 
 	// rewrite
-	keyDirRe1, err := m.Write(k1, reV1)
+	keyDirRe1, err := m.Write(k1, reV1, false)
 	assert.NoError(t, err)
 	assert.NotNil(t, keyDirRe1)
 	assert.Greater(t, keyDirRe1.ValuePos, keyDir1.ValuePos)
@@ -47,7 +47,7 @@ func Test_Manager(t *testing.T) {
 	assert.Equal(t, reV1, gotV1re)
 
 	// test write empty key
-	keyDir2, err := m.Write(k2, v2)
+	keyDir2, err := m.Write(k2, v2, false)
 	assert.NoError(t, err)
 	assert.NotNil(t, keyDir2)
 	assert.Equal(t, keyDir2.ValuePos, keyDirRe1.ValuePos+keyDirRe1.ValueSz)

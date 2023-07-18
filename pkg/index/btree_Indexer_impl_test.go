@@ -1,4 +1,4 @@
-package key_dir
+package index
 
 import (
 	"testing"
@@ -8,13 +8,13 @@ import (
 
 func TestBtree_Set(t *testing.T) {
 	br := NewBtree()
-	err := br.Set([]byte("key1"), NewMemValue(1, 1, 1))
+	err := br.Set([]byte("key1"), NewValueMetadata(1, 1, 1, 1))
 	require.NoError(t, err)
-	err = br.Set([]byte("key2"), NewMemValue(2, 2, 2))
+	err = br.Set([]byte("key2"), NewValueMetadata(2, 2, 2, 2))
 	require.NoError(t, err)
-	err = br.Set(nil, NewMemValue(3, 3, 3))
+	err = br.Set(nil, NewValueMetadata(3, 3, 3, 3))
 	require.Error(t, err)
-	err = br.Set([]byte(""), NewMemValue(4, 4, 4))
+	err = br.Set([]byte(""), NewValueMetadata(4, 4, 4, 4))
 	require.NoError(t, err)
 	v4, err := br.Get([]byte(""))
 	require.NoError(t, err)
@@ -26,14 +26,14 @@ func TestBtree_Set(t *testing.T) {
 
 func TestBtree_Get(t *testing.T) {
 	br := NewBtree()
-	err := br.Set([]byte("key1"), NewMemValue(1, 1, 1))
+	err := br.Set([]byte("key1"), NewValueMetadata(1, 1, 1, 1))
 	require.NoError(t, err)
 	v1, err := br.Get([]byte("key1"))
 	require.NoError(t, err)
 	require.Equal(t, uint64(1), v1.FileID)
 	require.Equal(t, uint64(1), v1.ValueSz)
 	require.Equal(t, uint64(1), v1.ValuePos)
-	err = br.Set([]byte("key1"), NewMemValue(2, 2, 2))
+	err = br.Set([]byte("key1"), NewValueMetadata(2, 2, 2, 2))
 	require.NoError(t, err)
 	v2, err := br.Get([]byte("key1"))
 	require.NoError(t, err)
@@ -49,7 +49,7 @@ func TestBtree_Get(t *testing.T) {
 	require.Nil(t, vNotExist)
 
 	// test empty key("")
-	err = br.Set([]byte(""), NewMemValue(3, 3, 3))
+	err = br.Set([]byte(""), NewValueMetadata(3, 3, 3, 3))
 	require.NoError(t, err)
 	v3, err := br.Get([]byte(""))
 	require.NoError(t, err)
@@ -60,7 +60,7 @@ func TestBtree_Get(t *testing.T) {
 
 func TestBtree_Del(t *testing.T) {
 	br := NewBtree()
-	err := br.Set([]byte("key1"), NewMemValue(1, 1, 1))
+	err := br.Set([]byte("key1"), NewValueMetadata(1, 1, 1, 1))
 	require.NoError(t, err)
 	k1Val, err := br.Get([]byte("key1"))
 	require.NoError(t, err)

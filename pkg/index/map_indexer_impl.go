@@ -1,4 +1,4 @@
-package key_dir
+package index
 
 import (
 	"encoding/hex"
@@ -9,7 +9,7 @@ type Map struct {
 	m sync.Map
 }
 
-func NewMap() Index {
+func NewMap() Indexer {
 	return &Map{
 		m: sync.Map{},
 	}
@@ -19,7 +19,7 @@ func byteToString(key []byte) string {
 	return hex.EncodeToString(key)
 }
 
-func (m *Map) Get(key []byte) (*MemValue, error) {
+func (m *Map) Get(key []byte) (*ValueMetadata, error) {
 	if err := checkKey(key); err != nil {
 		return nil, err
 	}
@@ -28,10 +28,10 @@ func (m *Map) Get(key []byte) (*MemValue, error) {
 	if !ok {
 		return nil, nil
 	}
-	return v.(*MemValue), nil
+	return v.(*ValueMetadata), nil
 }
 
-func (m *Map) Set(key []byte, value *MemValue) error {
+func (m *Map) Set(key []byte, value *ValueMetadata) error {
 	if err := checkKey(key); err != nil {
 		return err
 	}

@@ -59,6 +59,22 @@ type LogRecord struct {
 	value []byte
 }
 
+func (d *LogRecord) Op() LogRecordType {
+	return d.typ
+}
+
+func (d *LogRecord) Value() []byte {
+	switch d.typ {
+	case NormalRecord:
+		return d.value
+	case DeleteRecord:
+		return nil
+	default:
+		//dead code
+		return nil
+	}
+}
+
 // NewNormalLogRecord 创建一个普通的LogRecord
 // set时使用
 func NewNormalLogRecord(k, v []byte) (*LogRecord, error) {

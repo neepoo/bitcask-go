@@ -2,39 +2,49 @@ package disk
 
 import (
 	"os"
+	"path"
 	"sync"
 )
 
 var (
-	filePerm = os.FileMode(0600)
-	fileFlag = os.O_CREATE | os.O_RDWR | os.O_APPEND // 读写追加
+	filePerm       = os.FileMode(0600)
+	activeFileFlag = os.O_CREATE | os.O_RDWR | os.O_APPEND // active file 读写追加
+	olderFileFlag  = os.O_RDONLY                           // older file 读
 )
 
 // FilePersistentImpl 持久化存储接口的本地文件
 type FilePersistentImpl struct {
-	file   *os.File
-	offset int64
-	suffix uint64
+	file        *os.File
+	writeOffset int64
+	suffix      uint64
 	sync.RWMutex
 }
 
-func (f *FilePersistentImpl) getOffset() int64 {
+func (f *FilePersistentImpl) Offset() int64 {
 	f.RLock()
-	res := f.offset
+	res := f.writeOffset
 	f.RUnlock()
 	return res
 }
 
 func (f *FilePersistentImpl) setOffset(offset int64) {
 	f.Lock()
-	f.offset = offset
+	f.writeOffset = offset
 	f.Unlock()
 }
 
-func NewFilePersistentImpl(path string, suffix uint64) (PersistentStorage, error) {
+func NewFilePersistentImpl(absPath string, suffix uint64, isActiveFile bool) (PersistentStorage, error) {
 	var err error
 	res := new(FilePersistentImpl)
-	res.file, err = os.OpenFile(path, fileFlag, filePerm)
+	err = os.MkdirAll(path.Dir(absPath), os.FileMode(0600))
+	if err != nil {
+		return nil, err
+	}
+	if isActiveFile {
+		res.file, err = os.OpenFile(absPath, activeFileFlag, filePerm)
+	} else {
+		res.file, err = os.OpenFile(absPath, olderFileFlag, filePerm)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +63,7 @@ func (f *FilePersistentImpl) WriteToDisk(bs []byte) (offset int64, wn int, err e
 	f.Lock()
 	wn, err = f.file.Write(bs)
 	f.Unlock()
-	offset = f.getOffset()
+	offset = f.Offset()
 	f.setOffset(offset + int64(wn))
 	return
 }

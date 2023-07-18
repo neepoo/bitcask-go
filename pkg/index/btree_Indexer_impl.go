@@ -1,4 +1,4 @@
-package key_dir
+package index
 
 import (
 	"bytes"
@@ -12,20 +12,20 @@ type Btree struct {
 	sync.RWMutex
 }
 
-func NewBtree() Index {
+func NewBtree() Indexer {
 	return &Btree{tree: btree.New(32)}
 }
 
 type BTreeItem struct {
 	Key []byte
-	Val *MemValue
+	Val *ValueMetadata
 }
 
 func (B BTreeItem) Less(other btree.Item) bool {
 	return bytes.Compare(B.Key, other.(BTreeItem).Key) < 0
 }
 
-func (b *Btree) Get(key []byte) (*MemValue, error) {
+func (b *Btree) Get(key []byte) (*ValueMetadata, error) {
 	if err := checkKey(key); err != nil {
 		return nil, err
 	}
@@ -38,7 +38,7 @@ func (b *Btree) Get(key []byte) (*MemValue, error) {
 	return item.(BTreeItem).Val, nil
 }
 
-func (b *Btree) Set(key []byte, value *MemValue) error {
+func (b *Btree) Set(key []byte, value *ValueMetadata) error {
 	if err := checkKey(key); err != nil {
 		return err
 	}

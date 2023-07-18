@@ -19,7 +19,7 @@ func randomPath() string {
 
 func TestFilePersistentImpl_WriteReadDisk(t *testing.T) {
 	p := randomPath()
-	di, err := NewFilePersistentImpl(p, 0)
+	di, err := NewFilePersistentImpl(p, 0, true)
 	defer func() {
 		// Windows下文件没有关闭删除文件会error
 		err = di.Close()
