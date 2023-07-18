@@ -17,17 +17,16 @@ func randomPath() string {
 	return path.Join(os.TempDir(), filename)
 }
 
-func removePath(path string) error {
-	return os.RemoveAll(path)
-}
-
 func TestFilePersistentImpl_WriteReadDisk(t *testing.T) {
 	p := randomPath()
+	di, err := NewFilePersistentImpl(p, 0)
 	defer func() {
-		err := removePath(p)
+		// Windows下文件没有关闭删除文件会error
+		err = di.Close()
+		require.NoError(t, err)
+		err = di.Delete()
 		require.NoError(t, err)
 	}()
-	di, err := NewFilePersistentImpl(p, 0)
 	require.NoError(t, err)
 	require.NotNil(t, di)
 	// 先写
