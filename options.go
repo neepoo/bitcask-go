@@ -17,7 +17,7 @@ type Options struct {
 // NewDefaultOptions 返回默认的配置项
 func NewDefaultOptions() *Options {
 	return &Options{
-		Dir:        "bit_cask_data_dir",
+		Dir:        "bit_cast_data_dir",
 		MaxSize:    defaultDataFileSize,
 		AlwaysSync: false,
 	}

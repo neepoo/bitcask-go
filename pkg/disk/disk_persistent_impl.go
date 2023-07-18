@@ -36,7 +36,7 @@ func (f *FilePersistentImpl) setOffset(offset int64) {
 func NewFilePersistentImpl(absPath string, suffix uint64, isActiveFile bool) (PersistentStorage, error) {
 	var err error
 	res := new(FilePersistentImpl)
-	err = os.MkdirAll(path.Dir(absPath), os.FileMode(0600))
+	err = os.MkdirAll(path.Dir(absPath), os.FileMode(0755))
 	if err != nil {
 		return nil, err
 	}
